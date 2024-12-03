@@ -5,40 +5,66 @@ struct Report {
     levels: Vec<i64>,
 }
 
+fn check_two_numbers(a: i64, b: i64, inc_global: &mut Option<bool>) -> bool {
+    let inc = inc_global.get_or_insert(a < b);
+    let inc_dec_correct = if *inc { a < b } else { a > b };
+
+    let diff = (a - b).abs();
+    let change_is_in_bounds = (1..=3).contains(&diff);
+
+    inc_dec_correct && change_is_in_bounds
+}
+
 impl Report {
-    fn sliding_window_check(levels: &[i64]) -> bool {
-        let levels = &levels;
-        let inc = levels[0] < levels[1];
+    fn is_safe(&self, mut can_skip: bool) -> bool {
+        let levels = &self.levels;
 
-        for i in 0..levels.len() - 1 {
-            let [a, b] = &levels[i..(i + 2)] else {
-                unreachable!()
-            };
+        let len = levels.len();
 
-            let inc_dec_correct = if inc { a < b } else { a > b };
+        let mut i = 0;
 
-            let diff = (a - b).abs();
-            let change_is_in_bounds = (1..=3).contains(&diff);
+        let mut inc_global = None;
 
-            if !inc_dec_correct || !change_is_in_bounds {
+        while i < len - 1 {
+            let old_inc = inc_global;
+
+            let a = levels[i];
+            let b = levels[i + 1];
+            if check_two_numbers(a, b, &mut inc_global) {
+                // the current two numbers fit, just continue
+                i += 1;
+                continue;
+            } else if i == len - 2 && can_skip {
+                // we are at the end and did not skip yet
+                return true;
+            }
+            // if we have an error, we need to reset it since we might jump
+            inc_global = old_inc;
+
+            if !can_skip || i == len - 2 {
+                // we are at the and or can not skip anymore
                 return false;
             }
+            can_skip = false;
+
+            let c = levels[i + 2];
+            // if we are at the start, we can simply ignore the first level
+            if i == 0 && check_two_numbers(b, c, &mut inc_global) {
+                i += 1;
+                continue;
+            }
+            inc_global = old_inc;
+
+            if check_two_numbers(a, c, &mut inc_global) {
+                // we can skip b and move directly to c
+                i += 2;
+                continue;
+            }
+
+            return false;
         }
 
         true
-    }
-
-    fn is_safe(&self) -> bool {
-        Report::sliding_window_check(&self.levels)
-    }
-
-    fn is_safe_after_dampening(&self) -> bool {
-        let len = self.levels.len();
-        let levels = &self.levels;
-        self.levels.iter().enumerate().any(|(i, _)| {
-            let new_level = [&levels[0..i], &levels[(i + 1).min(len)..len]].concat();
-            Report::sliding_window_check(&new_level)
-        })
     }
 }
 
@@ -57,15 +83,15 @@ fn generator_day2(input: &str) -> Vec<Report> {
 
 #[aoc(day2, part1)]
 fn part1(reports: &[Report]) -> usize {
-    reports.iter().filter(|report| report.is_safe()).count()
+    reports
+        .iter()
+        .filter(|report| report.is_safe(false))
+        .count()
 }
 
 #[aoc(day2, part2)]
 fn part2(reports: &[Report]) -> usize {
-    reports
-        .iter()
-        .filter(|report| report.is_safe_after_dampening())
-        .count()
+    reports.iter().filter(|report| report.is_safe(true)).count()
 }
 
 #[cfg(test)]
