@@ -18,8 +18,8 @@ impl Input {
     }
 }
 
-#[aoc_generator(day04, part1)]
-fn generator_part1(input: &str) -> Input {
+#[aoc_generator(day04)]
+fn generator(input: &str) -> Input {
     let lines: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let dim = (lines[0].len() as i64, lines.len() as i64);
     Input { lines, dim }
@@ -93,9 +93,51 @@ fn part1(input: &Input) -> usize {
     xmas
 }
 
+#[aoc(day04, part2)]
+fn part2(input: &Input) -> usize {
+    let (width, height) = input.dim;
+
+    let mut xmas = 0;
+
+    for x in 0..width {
+        for y in 0..height {
+            let index = Offset(x, y);
+            let Some(c) = input.at(index) else {
+                continue;
+            };
+
+            if c != b'A' {
+                continue;
+            }
+
+            let top_left = input.at(index + Offset(-1, -1));
+            let bottom_right = input.at(index + Offset(1, 1));
+            let first_diagonal = matches!(
+                (top_left, bottom_right),
+                (Some(b'M'), Some(b'S')) | (Some(b'S'), Some(b'M'))
+            );
+
+            let bottom_left = input.at(index + Offset(-1, 1));
+            let top_right = input.at(index + Offset(1, -1));
+            let second_diagonal = matches!(
+                (bottom_left, top_right),
+                (Some(b'M'), Some(b'S')) | (Some(b'S'), Some(b'M'))
+            );
+
+            if first_diagonal && second_diagonal {
+                xmas += 1;
+            }
+        }
+    }
+
+    xmas
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{generator_part1, part1};
+    use crate::day_04::part2;
+
+    use super::{generator, part1};
 
     const INPUT: &str = "MMMSXXMASM
 MSAMXMSMSA
@@ -110,17 +152,26 @@ MXMXAXMASX";
 
     #[test]
     fn test_generator_part1() {
-        let gen = generator_part1(INPUT);
+        let gen = generator(INPUT);
 
         assert_eq!(gen.dim, (10, 10));
     }
 
     #[test]
     fn test_part1() {
-        let gen = generator_part1(INPUT);
+        let gen = generator(INPUT);
 
         let output = part1(&gen);
 
         assert_eq!(output, 18);
+    }
+
+    #[test]
+    fn test_part2() {
+        let gen = generator(INPUT);
+
+        let output = part2(&gen);
+
+        assert_eq!(output, 9);
     }
 }
