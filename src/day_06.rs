@@ -204,6 +204,8 @@ fn part2(Input { map, guard, .. }: &Input) -> usize {
 
         // only count each successful location once and do not test start
         if !already_tested.contains(&obstacle) && obstacle != start && map.contains(obstacle) {
+            already_tested.insert(obstacle);
+
             // track visited positions and directions
             let mut visited = HashSet::new();
 
@@ -216,7 +218,6 @@ fn part2(Input { map, guard, .. }: &Input) -> usize {
                 let current_visiting = (sim_position, sim_direction);
                 // check, if we've already been here
                 if visited.contains(&current_visiting) {
-                    already_tested.insert(obstacle);
                     sum += 1;
                     break;
                 }
