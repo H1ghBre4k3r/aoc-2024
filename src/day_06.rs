@@ -213,13 +213,14 @@ fn part2(Input { map, guard, .. }: &Input) -> usize {
             let mut sim_direction = direction.turn();
 
             while map.contains(sim_position) {
+                let current_visiting = (sim_position, sim_direction);
                 // check, if we've already been here
-                if visited.contains(&(sim_position, sim_direction)) {
+                if visited.contains(&current_visiting) {
                     already_tested.insert(obstacle);
                     sum += 1;
                     break;
                 }
-                visited.insert((sim_position, sim_direction));
+                visited.insert(current_visiting);
 
                 // check for wall or our obstacle
                 let new_position = sim_position + sim_direction.offset();
