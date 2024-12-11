@@ -1,17 +1,8 @@
-use std::{collections::HashSet, ops::Add};
+use std::collections::HashSet;
 
 use aoc_runner_derive::{aoc, aoc_generator};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-struct Coord(i64, i64);
-
-impl Add for Coord {
-    type Output = Coord;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Coord(self.0 + rhs.0, self.1 + rhs.1)
-    }
-}
+use crate::utils::Coord;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Map(Vec<Vec<char>>);
