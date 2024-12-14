@@ -26,3 +26,26 @@ impl Mul<i64> for Coord {
         Coord(self.0 * rhs, self.1 * rhs)
     }
 }
+
+impl Coord {
+    pub const UP: Coord = Coord(0, -1);
+    pub const RIGHT: Coord = Coord(1, 0);
+    pub const DOWN: Coord = Coord(0, 1);
+    pub const LEFT: Coord = Coord(-1, 0);
+
+    pub fn up(&self) -> Self {
+        *self + Self::UP
+    }
+
+    pub fn right(&self) -> Self {
+        *self + Self::RIGHT
+    }
+
+    pub fn down(&self) -> Self {
+        *self + Self::DOWN
+    }
+
+    pub fn left(&self) -> Self {
+        *self + Self::LEFT
+    }
+}
