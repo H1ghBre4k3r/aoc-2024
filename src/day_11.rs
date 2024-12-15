@@ -38,14 +38,13 @@ fn generator(input: &str) -> Input {
     Input { stones }
 }
 
-#[aoc(day11, part1)]
-fn part1(Input { stones }: &Input) -> u64 {
+fn perform_blinking(stones: &Vec<Stone>, iterations: usize) -> u64 {
     let mut stone_map = HashMap::<Stone, u64>::new();
     for stone in stones {
         stone_map.insert(*stone, 1);
     }
 
-    for _ in 0..25 {
+    for _ in 0..iterations {
         let mut new_stones = HashMap::new();
         for (stone, amount) in &stone_map {
             let res = stone.blink();
@@ -67,33 +66,14 @@ fn part1(Input { stones }: &Input) -> u64 {
     sum
 }
 
+#[aoc(day11, part1)]
+fn part1(Input { stones }: &Input) -> u64 {
+    perform_blinking(stones, 25)
+}
+
 #[aoc(day11, part2)]
 fn part2(Input { stones }: &Input) -> u64 {
-    let mut stone_map = HashMap::<Stone, u64>::new();
-    for stone in stones {
-        stone_map.insert(*stone, 1);
-    }
-
-    for _ in 0..75 {
-        let mut new_stones = HashMap::new();
-        for (stone, amount) in &stone_map {
-            let res = stone.blink();
-
-            for new_stone in &res {
-                let current = new_stones.get(new_stone).cloned().unwrap_or_default();
-                new_stones.insert(*new_stone, current + *amount);
-            }
-        }
-        stone_map = new_stones;
-    }
-
-    let mut sum = 0;
-
-    for amount in stone_map.values() {
-        sum += *amount;
-    }
-
-    sum
+    perform_blinking(stones, 75)
 }
 
 #[cfg(test)]
